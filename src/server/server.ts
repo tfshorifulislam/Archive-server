@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "../lib/auth";
 
 dotenv.config();
 
@@ -12,6 +14,8 @@ app.use(
         credentials: true,
     })
 );
+
+app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 app.use(express.json());
 
