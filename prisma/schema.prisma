@@ -10,7 +10,8 @@ datasource db {
 model User {
   id            String    @id
   name          String
-  email         String
+  userName      String    @unique
+  email         String    @unique
   emailVerified Boolean
   image         String?
   createdAt     DateTime
@@ -18,7 +19,6 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  @@unique([email])
   @@map("user")
 }
 
@@ -42,6 +42,7 @@ model Account {
   accountId             String
   providerId            String
   userId                String
+  issuer                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
@@ -53,6 +54,7 @@ model Account {
   createdAt             DateTime
   updatedAt             DateTime
 
+  @@unique([issuer, accountId])
   @@map("account")
 }
 
