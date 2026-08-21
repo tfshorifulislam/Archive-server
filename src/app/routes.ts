@@ -4,6 +4,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "../lib/auth.js";
 import userNameCheckRouter from "../router/userNameValidation.router.js";
 import backendHelthCheck from "../router/health.js"
+import authRouter from "../router/authSessionCheck.js"
 
 export const setupRoutes = (app: Express) => {
 
@@ -12,6 +13,9 @@ export const setupRoutes = (app: Express) => {
 
   //health check;
   app.use('/', backendHelthCheck)
+
+  // session check;
+  app.use("/api/auth", authRouter);
 
   //check user name validation
   app.use("/api/user", userNameCheckRouter);
