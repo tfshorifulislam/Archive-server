@@ -4,6 +4,7 @@ import { prisma } from "./prisma";
 import { Resend } from "resend";
 import { emailOTP } from "better-auth/plugins";
 import { verifyEmailTemplate } from "./email/VerificationEmail";
+import { resetPasswordTemplate } from "./email/ResetPasswordEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -46,7 +47,10 @@ export const auth = betterAuth({
                 from: "onboarding@resend.dev",
                 to: user.email,
                 subject: 'Reset your password',
-                html: `Click <a href="${url}">here</a> to reset your password.`,
+                html: resetPasswordTemplate(
+                    user.name,
+                    url
+                ),
             });
         },
     },
