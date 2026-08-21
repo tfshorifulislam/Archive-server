@@ -43,16 +43,24 @@ export const auth = betterAuth({
         requireEmailVerification: true,
 
         sendResetPassword: async ({ user, url }) => {
+            const resetUrl = new URL(url);
+
+            resetUrl.searchParams.set(
+                "callbackURL",
+                `${process.env.FRONTEND_URL}/auth/resetPassword`
+            );
+
             await resend.emails.send({
                 from: "onboarding@resend.dev",
                 to: user.email,
-                subject: 'Reset your password',
+                subject: "Reset your password",
                 html: resetPasswordTemplate(
                     user.name,
-                    url
+                    resetUrl.toString()
                 ),
             });
         },
+
     },
 
     emailVerification: {
