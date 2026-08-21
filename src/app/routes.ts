@@ -15,7 +15,7 @@ export const setupRoutes = (app: Express) => {
   app.use('/', backendHelthCheck)
 
   // session check;
-  app.use("/api/auth", authRouter);
+  app.use("/api/session", authRouter);
 
   //check user name validation
   app.use("/api/user", userNameCheckRouter);

@@ -76,7 +76,7 @@ export const auth = betterAuth({
 
             verificationUrl.searchParams.set(
                 "callbackURL",
-                `${process.env.FRONTEND_URL}/email-verified`
+                `${process.env.FRONTEND_URL}/auth/email-verified`
             );
 
             await resend.emails.send({
