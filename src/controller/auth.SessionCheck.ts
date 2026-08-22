@@ -1,25 +1,12 @@
 import { Request, Response } from "express";
-import { auth } from "../lib/auth";
+import { getCurrentSession } from "../lib/auth.service";
 
 export const getSession = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const headers = new Headers();
-
-    for (const [key, value] of Object.entries(req.headers)) {
-      if (value !== undefined) {
-        headers.set(
-          key,
-          Array.isArray(value) ? value.join(", ") : value
-        );
-      }
-    }
-
-    const session = await auth.api.getSession({
-      headers,
-    });
+    const session = await getCurrentSession(req);
 
     if (!session) {
       return res.status(401).json({

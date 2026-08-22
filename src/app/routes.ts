@@ -5,6 +5,7 @@ import { auth } from "../lib/auth.js";
 import userNameCheckRouter from "../router/userNameValidation.router.js";
 import backendHelthCheck from "../router/health.js"
 import authRouter from "../router/authSessionCheck.js"
+import profileRouter from "../router/profileRouter.js";
 
 export const setupRoutes = (app: Express) => {
 
@@ -19,5 +20,8 @@ export const setupRoutes = (app: Express) => {
 
   //check user name validation
   app.use("/api/user", userNameCheckRouter);
+
+  //public profile;
+  app.use('/api/profile', profileRouter);
 
 };
