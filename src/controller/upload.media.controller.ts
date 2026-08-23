@@ -19,26 +19,18 @@ export const createPost = async (
 
         const { title, content, tags } = req.body;
 
-        if (!content?.trim()) {
+        if (!content) {
             return res.status(400).json({
                 success: false,
                 message: "Content is required",
             });
         }
 
-        // Parse tags
         let parsedTags: string[] = [];
 
         if (tags) {
             try {
-                parsedTags =
-                    typeof tags === "string"
-                        ? JSON.parse(tags)
-                        : tags;
-
-                if (!Array.isArray(parsedTags)) {
-                    parsedTags = [];
-                }
+                parsedTags = JSON.parse(tags);
             } catch {
                 parsedTags = [];
             }
@@ -47,7 +39,6 @@ export const createPost = async (
         let mediaUrl: string | null = null;
         let mediaType: string | null = null;
 
-        // Upload image/video
         if (req.file) {
             mediaUrl = await uploadToCloudinary(
                 req.file.buffer
@@ -60,8 +51,8 @@ export const createPost = async (
 
         const post = await prisma.post.create({
             data: {
-                title: title?.trim() || null,
-                content: content.trim(),
+                title: title || null,
+                content,
                 mediaUrl,
                 mediaType,
                 tags: parsedTags,

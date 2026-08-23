@@ -1,0 +1,36 @@
+import { Request, Response } from "express";
+import { prisma } from "../lib/prisma";
+import { success } from "better-auth";
+
+export const getAllPosts = async (req: Request, res: Response) => {
+
+    try {
+        const posts = await prisma.post.findMany({
+            orderBy: {
+                createdAt: "disc",
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        userName: true,
+                        image: true
+                    },
+                },
+            },
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Posts fetched successfully',
+            posts,
+        });
+    } catch (error) {
+        console.error("GET ALL POSTS ERROR:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch posts",
+        });
+    }
+}

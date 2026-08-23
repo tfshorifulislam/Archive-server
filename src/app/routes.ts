@@ -8,6 +8,7 @@ import authRouter from "../router/authSessionCheck.js"
 import profileRouter from "../router/profileRouter.js";
 import profileUpdateRouter from "../router/ProfileName.UserName.Update.js";
 import createPublicPost from "../router/upload.media.router.js";
+import getPublicPost from "../router/get.allPost.router.js";
 
 export const setupRoutes = (app: Express) => {
 
@@ -31,6 +32,9 @@ export const setupRoutes = (app: Express) => {
 
   //create public post
   app.use("/api/create", createPublicPost);
+
+  //get all public post
+  app.use("/api/posts", getPublicPost);
 
 
 };
