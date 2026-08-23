@@ -9,6 +9,7 @@ import profileRouter from "../router/profileRouter.js";
 import profileUpdateRouter from "../router/ProfileName.UserName.Update.js";
 import createPublicPost from "../router/upload.media.router.js";
 import getPublicPost from "../router/get.allPost.router.js";
+import getUserPost from "../router//get.userPosts.router.js";
 
 export const setupRoutes = (app: Express) => {
 
@@ -35,6 +36,9 @@ export const setupRoutes = (app: Express) => {
 
   //get all public post
   app.use("/api/posts", getPublicPost);
+
+  //get all public post
+  app.use("/api", getUserPost);
 
 
 };

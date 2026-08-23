@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
-import { success } from "better-auth";
 
 export const getAllPosts = async (req: Request, res: Response) => {
 
     try {
         const posts = await prisma.post.findMany({
             orderBy: {
-                createdAt: "disc",
+                createdAt: "desc",
             },
             include: {
                 user: {
