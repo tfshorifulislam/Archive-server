@@ -6,6 +6,7 @@ import userNameCheckRouter from "../router/userNameValidation.router.js";
 import backendHelthCheck from "../router/health.js"
 import authRouter from "../router/authSessionCheck.js"
 import profileRouter from "../router/profileRouter.js";
+import profileUpdateRouter from "../router/ProfileName.UserName.Update.js";
 
 export const setupRoutes = (app: Express) => {
 
@@ -23,5 +24,8 @@ export const setupRoutes = (app: Express) => {
 
   //public profile;
   app.use('/api/profile', profileRouter);
+
+  //public profile update route;
+  app.use("/api/profile", profileUpdateRouter);
 
 };
