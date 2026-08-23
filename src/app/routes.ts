@@ -7,6 +7,7 @@ import backendHelthCheck from "../router/health.js"
 import authRouter from "../router/authSessionCheck.js"
 import profileRouter from "../router/profileRouter.js";
 import profileUpdateRouter from "../router/ProfileName.UserName.Update.js";
+import createPublicPost from "../router/upload.media.router.js";
 
 export const setupRoutes = (app: Express) => {
 
@@ -27,5 +28,9 @@ export const setupRoutes = (app: Express) => {
 
   //public profile update route;
   app.use("/api/profile-update", profileUpdateRouter);
+
+  //create public post
+  app.use("/api/create", createPublicPost);
+
 
 };
