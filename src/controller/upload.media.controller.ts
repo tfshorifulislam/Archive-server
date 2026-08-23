@@ -17,13 +17,31 @@ export const createPost = async (
             });
         }
 
-        const { title, content } = req.body;
+        const { title, content, tags } = req.body;
 
-        if (!content) {
+        if (!content?.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "Content is required",
             });
+        }
+
+        // Parse tags
+        let parsedTags: string[] = [];
+
+        if (tags) {
+            try {
+                parsedTags =
+                    typeof tags === "string"
+                        ? JSON.parse(tags)
+                        : tags;
+
+                if (!Array.isArray(parsedTags)) {
+                    parsedTags = [];
+                }
+            } catch {
+                parsedTags = [];
+            }
         }
 
         let mediaUrl: string | null = null;
@@ -40,13 +58,13 @@ export const createPost = async (
                 : "image";
         }
 
-        // Create post
         const post = await prisma.post.create({
             data: {
-                title: title || null,
-                content,
+                title: title?.trim() || null,
+                content: content.trim(),
                 mediaUrl,
                 mediaType,
+                tags: parsedTags,
                 userId: session.user.id,
             },
 
