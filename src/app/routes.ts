@@ -26,6 +26,6 @@ export const setupRoutes = (app: Express) => {
   app.use('/api/profile', profileRouter);
 
   //public profile update route;
-  app.use("/api/profile", profileUpdateRouter);
+  app.use("/api/profile-update", profileUpdateRouter);
 
 };
