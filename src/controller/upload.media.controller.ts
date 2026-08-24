@@ -4,16 +4,9 @@ import { prisma } from "../lib/prisma";
 import { uploadToCloudinary } from "../lib/cloudinary_config/uploadToCloudinary";
 
 
-export const createPost = async (
-    req: Request,
-    res: Response
-) => {
+export const createPost = async (req: Request, res: Response) => {
     try {
-        console.log("========== CREATE POST ==========");
-
-        console.log("BODY:", req.body);
-        console.log("FILE:", req.file);
-
+    
         const session = await getCurrentSession(req);
 
         if (!session) {
@@ -50,8 +43,7 @@ export const createPost = async (
         // =========================
 
         if (req.file) {
-            console.log("Uploading file to Cloudinary...");
-
+           
             mediaUrl = await uploadToCloudinary(
                 req.file.buffer
             );

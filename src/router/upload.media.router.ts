@@ -6,9 +6,6 @@ import upload from "../middleware/multer.js";
 const router = Router();
 
 router.post(
-    "/posts",
-    upload.single("file"),
-    createPost
-);
+    "/posts", upload.single("file"), createPost);
 
 export default router;
