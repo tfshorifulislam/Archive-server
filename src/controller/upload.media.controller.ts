@@ -1,13 +1,19 @@
 import { Request, Response } from "express";
 import { getCurrentSession } from "../lib/auth.service";
-import { uploadToCloudinary } from "../lib/uploadToCloudinary";
 import { prisma } from "../lib/prisma";
+import { uploadToCloudinary } from "../lib/cloudinary_config/uploadToCloudinary";
+
 
 export const createPost = async (
     req: Request,
     res: Response
 ) => {
     try {
+        console.log("========== CREATE POST ==========");
+
+        console.log("BODY:", req.body);
+        console.log("FILE:", req.file);
+
         const session = await getCurrentSession(req);
 
         if (!session) {
@@ -39,15 +45,30 @@ export const createPost = async (
         let mediaUrl: string | null = null;
         let mediaType: string | null = null;
 
+        // =========================
+        // CLOUDINARY UPLOAD
+        // =========================
+
         if (req.file) {
+            console.log("Uploading file to Cloudinary...");
+
             mediaUrl = await uploadToCloudinary(
                 req.file.buffer
             );
 
-            mediaType = req.file.mimetype.startsWith("video/")
+            mediaType = req.file.mimetype.startsWith(
+                "video/"
+            )
                 ? "video"
                 : "image";
+
+            console.log("MEDIA URL:", mediaUrl);
+            console.log("MEDIA TYPE:", mediaType);
         }
+
+        // =========================
+        // CREATE POST
+        // =========================
 
         const post = await prisma.post.create({
             data: {
@@ -78,7 +99,10 @@ export const createPost = async (
         });
 
     } catch (error) {
-        console.error("CREATE POST ERROR:", error);
+        console.error(
+            "CREATE POST ERROR:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
