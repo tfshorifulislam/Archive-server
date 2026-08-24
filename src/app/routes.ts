@@ -11,6 +11,7 @@ import createPublicPost from "../router/upload.media.router.js";
 import getPublicPost from "../router/get.allPost.router.js";
 import getUserPost from "../router/get.userPosts.router.js";
 import getUserPostById from "../router/get.Posts_By_Id.js";
+import togglePostSaveRouter from "../router/toggleSavePost.router.js";
 
 export const setupRoutes = (app: Express) => {
 
@@ -43,6 +44,9 @@ export const setupRoutes = (app: Express) => {
 
   //get user post by Id
   app.use("/api", getUserPostById);
+
+  // post save toggle button
+  app.use("/api/toggle-save", togglePostSaveRouter);
 
 
 };
