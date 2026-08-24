@@ -12,6 +12,10 @@ export async function requireAuth(
     next: NextFunction
 ) {
     try {
+        console.log("METHOD:", req.method);
+        console.log("COOKIE:", req.headers.cookie);
+
+        
         const headers = new Headers();
 
         for (const [key, value] of Object.entries(req.headers)) {
