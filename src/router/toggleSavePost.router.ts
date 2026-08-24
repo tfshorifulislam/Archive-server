@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { toggleSavePost } from "../controller/toggleSavePost.controller";
+import { toggleSavePost } from "../controller/toggleSavePost.controller.js";
 import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
