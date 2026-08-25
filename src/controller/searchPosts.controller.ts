@@ -19,33 +19,10 @@ export const searchPosts = async (
 
         const posts = await prisma.post.findMany({
             where: {
-                OR: [
-                    {
-                        title: {
-                            contains: search,
-                            mode: "insensitive",
-                        },
-                    },
-                    {
-                        content: {
-                            contains: search,
-                            mode: "insensitive",
-                        },
-                    },
-                    {
-                        tags: {
-                            has: search,
-                        },
-                    },
-                    {
-                        user: {
-                            userName: {
-                                contains: search,
-                                mode: "insensitive",
-                            },
-                        },
-                    },
-                ],
+                title: {
+                    contains: search,
+                    mode: "insensitive",
+                },
             },
 
             include: {
