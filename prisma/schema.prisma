@@ -19,6 +19,7 @@ model User {
   accounts      Account[]
   posts         Post[]
   SavedPosts    SavedPost[]
+  likes         Like[]
 
   @@map("user")
 }
@@ -80,6 +81,7 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
+  likes     Like[]
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   savedPosts SavedPost[]
@@ -98,4 +100,17 @@ model SavedPost {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
 }
