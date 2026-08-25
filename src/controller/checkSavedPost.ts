@@ -6,46 +6,46 @@ export const checkSavedPost = async (
     res: Response
 ) => {
     try {
-        if (!req.user) {
-            return res.status(401).json({
-                success: false,
+        const postId = String(
+            req.params.postId
+        );
+
+        const userId = req.query.userId;
+
+        if (
+            !userId ||
+            typeof userId !== "string"
+        ) {
+            return res.status(200).json({
+                success: true,
                 saved: false,
-                unauthorized: true,
-                message: "Unauthorized",
             });
         }
 
-        const userId = req.user.id;
-        const postId = String(req.params.postId);
-
-        if (!postId) {
-            return res.status(400).json({
-                success: false,
-                saved: false,
-                message: "Post ID is required",
-            });
-        }
-
-        const savedPost = await prisma.savedPost.findUnique({
-            where: {
-                userId_postId: {
-                    userId,
-                    postId,
+        const savedPost =
+            await prisma.savedPost.findUnique({
+                where: {
+                    userId_postId: {
+                        userId,
+                        postId,
+                    },
                 },
-            },
-        });
+            });
 
         return res.status(200).json({
             success: true,
             saved: !!savedPost,
         });
     } catch (error) {
-        console.error("CHECK SAVED POST ERROR:", error);
+        console.error(
+            "CHECK SAVED POST ERROR:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            saved: false,
-            message: "Failed to check saved post",
+            message:
+                "Failed to check saved post",
         });
     }
 };

@@ -6,21 +6,29 @@ export const toggleSavePost = async (
     res: Response
 ) => {
     try {
-        if (!req.user) {
+        const { userId } = req.body;
+        const postId = String(req.params.postId);
+
+        if (!userId) {
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized",
-                unauthorized: true,
             });
         }
 
-        const userId = req.user.id;
-        const postId = String(req.params.postId);
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                id: true,
+            },
+        });
 
-        if (!postId) {
-            return res.status(400).json({
+        if (!user) {
+            return res.status(401).json({
                 success: false,
-                message: "Post ID is required",
+                message: "User not found",
             });
         }
 
@@ -76,7 +84,10 @@ export const toggleSavePost = async (
             message: "Post saved successfully",
         });
     } catch (error) {
-        console.error("TOGGLE SAVE POST ERROR:", error);
+        console.error(
+            "TOGGLE SAVE POST ERROR:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
