@@ -17,7 +17,11 @@ export const getSavedPosts = async (req: Request, res: Response) => {
                 userId,
             },
             include: {
-                post: true,
+                post: {
+                    include: {
+                        user: true,
+                    },
+                },
             },
             orderBy: {
                 createdAt: "desc",
