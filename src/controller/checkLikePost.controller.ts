@@ -6,44 +6,47 @@ export const checkLikePost = async (
     res: Response
 ) => {
     try {
-        const postId = String(req.params.postId);
+        const postId = String(
+            req.params.postId
+        );
 
-        if (!postId) {
-            return res.status(400).json({
-                success: false,
-                liked: false,
-                message: "Post ID is required",
-            });
-        }
+        const userId = req.query.userId;
 
-        if (!req.user) {
-            return res.status(200).json({
-                success: true,
-                liked: false,
-                likeCount: await prisma.like.count({
+        // User ID না থাকলে
+        if (
+            !userId ||
+            typeof userId !== "string"
+        ) {
+            const likeCount =
+                await prisma.like.count({
                     where: {
                         postId,
                     },
-                }),
+                });
+
+            return res.status(200).json({
+                success: true,
+                liked: false,
+                likeCount,
             });
         }
 
-        const userId = req.user.id;
+        const existingLike =
+            await prisma.like.findUnique({
+                where: {
+                    userId_postId: {
+                        userId,
+                        postId,
+                    },
+                },
+            });
 
-        const existingLike = await prisma.like.findUnique({
-            where: {
-                userId_postId: {
-                    userId,
+        const likeCount =
+            await prisma.like.count({
+                where: {
                     postId,
                 },
-            },
-        });
-
-        const likeCount = await prisma.like.count({
-            where: {
-                postId,
-            },
-        });
+            });
 
         return res.status(200).json({
             success: true,
@@ -51,11 +54,13 @@ export const checkLikePost = async (
             likeCount,
         });
     } catch (error) {
-        console.error("CHECK LIKE ERROR:", error);
+        console.error(
+            "CHECK LIKE POST ERROR:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            liked: false,
             message: "Failed to check like",
         });
     }

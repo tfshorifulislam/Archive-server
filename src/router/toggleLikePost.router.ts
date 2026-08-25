@@ -1,14 +1,11 @@
 import { Router } from "express";
 
-import { toggleLikePost } from "../controller/toggleLikePost.controller.js";
-import { requireAuth } from "../middleware/requireAuth.js";
+import {
+    toggleLikePost,
+} from "../controller/toggleLikePost.controller.js";
 
 const router = Router();
 
-router.post(
-    "/:postId",
-    requireAuth,
-    toggleLikePost
-);
+router.post("/:postId",toggleLikePost);
 
 export default router;

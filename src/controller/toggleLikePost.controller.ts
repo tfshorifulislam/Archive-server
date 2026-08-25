@@ -6,25 +6,34 @@ export const toggleLikePost = async (
     res: Response
 ) => {
     try {
-        if (!req.user) {
+        const { userId } = req.body;
+        const postId = String(req.params.postId);
+
+        if (!userId) {
             return res.status(401).json({
                 success: false,
-                liked: false,
                 message: "Unauthorized",
             });
         }
 
-        const userId = req.user.id;
-        const postId = String(req.params.postId);
+        // Check user exists
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                id: true,
+            },
+        });
 
-        if (!postId) {
-            return res.status(400).json({
+        if (!user) {
+            return res.status(401).json({
                 success: false,
-                liked: false,
-                message: "Post ID is required",
+                message: "User not found",
             });
         }
 
+        // Check post exists
         const post = await prisma.post.findUnique({
             where: {
                 id: postId,
@@ -37,20 +46,22 @@ export const toggleLikePost = async (
         if (!post) {
             return res.status(404).json({
                 success: false,
-                liked: false,
                 message: "Post not found",
             });
         }
 
-        const existingLike = await prisma.like.findUnique({
-            where: {
-                userId_postId: {
-                    userId,
-                    postId,
+        // Check existing like
+        const existingLike =
+            await prisma.like.findUnique({
+                where: {
+                    userId_postId: {
+                        userId,
+                        postId,
+                    },
                 },
-            },
-        });
+            });
 
+        // Already liked → Unlike
         if (existingLike) {
             await prisma.like.delete({
                 where: {
@@ -58,11 +69,12 @@ export const toggleLikePost = async (
                 },
             });
 
-            const likeCount = await prisma.like.count({
-                where: {
-                    postId,
-                },
-            });
+            const likeCount =
+                await prisma.like.count({
+                    where: {
+                        postId,
+                    },
+                });
 
             return res.status(200).json({
                 success: true,
@@ -72,6 +84,7 @@ export const toggleLikePost = async (
             });
         }
 
+        // Not liked → Like
         await prisma.like.create({
             data: {
                 userId,
@@ -79,11 +92,12 @@ export const toggleLikePost = async (
             },
         });
 
-        const likeCount = await prisma.like.count({
-            where: {
-                postId,
-            },
-        });
+        const likeCount =
+            await prisma.like.count({
+                where: {
+                    postId,
+                },
+            });
 
         return res.status(200).json({
             success: true,
@@ -92,11 +106,13 @@ export const toggleLikePost = async (
             message: "Post liked successfully",
         });
     } catch (error) {
-        console.error("TOGGLE LIKE ERROR:", error);
+        console.error(
+            "TOGGLE LIKE POST ERROR:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            liked: false,
             message: "Failed to toggle like",
         });
     }
