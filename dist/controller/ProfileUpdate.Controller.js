@@ -1,15 +1,13 @@
 import { prisma } from "../lib/prisma.js";
-import { getCurrentSession } from "../lib/auth.service.js";
 export const updateProfile = async (req, res) => {
     try {
-        const session = await getCurrentSession(req);
-        if (!session) {
+        const { name, userName, userId } = req.body;
+        if (!userId) {
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized",
             });
         }
-        const { name, userName } = req.body;
         if (!name || !userName) {
             return res.status(400).json({
                 success: false,
@@ -20,7 +18,7 @@ export const updateProfile = async (req, res) => {
             where: {
                 userName,
                 NOT: {
-                    id: session.user.id,
+                    id: userId,
                 },
             },
         });
@@ -32,7 +30,7 @@ export const updateProfile = async (req, res) => {
         }
         const user = await prisma.user.update({
             where: {
-                id: session.user.id,
+                id: userId,
             },
             data: {
                 name,

@@ -1,10 +1,7 @@
 import { Express } from "express";
-import { toNodeHandler } from "better-auth/node";
 
-import { auth } from "../lib/auth.js";
 import userNameCheckRouter from "../router/userNameValidation.router.js";
-import backendHelthCheck from "../router/health.js"
-import authRouter from "../router/authSessionCheck.js"
+import backendHelthCheck from "../router/health.js";
 import profileRouter from "../router/profileRouter.js";
 import profileUpdateRouter from "../router/ProfileName.UserName.Update.js";
 import createPublicPost from "../router/upload.media.router.js";
@@ -17,43 +14,25 @@ import savedPostsRouter from "../router/getSavedPosts.js";
 
 export const setupRoutes = (app: Express) => {
 
-  //better auth moutn
-  app.all("/api/auth/{*any}", toNodeHandler(auth));
+    app.use("/", backendHelthCheck);
 
-  //health check;
-  app.use('/', backendHelthCheck)
+    app.use("/api/user", userNameCheckRouter);
 
-  // session check;
-  app.use("/api/session", authRouter);
+    app.use("/api/profile", profileRouter);
 
-  //check user name validation
-  app.use("/api/user", userNameCheckRouter);
+    app.use("/api/profile-update", profileUpdateRouter);
 
-  //public profile;
-  app.use('/api/profile', profileRouter);
+    app.use("/api/create", createPublicPost);
 
-  //public profile update route;
-  app.use("/api/profile-update", profileUpdateRouter);
+    app.use("/api/posts", getPublicPost);
 
-  //create public post
-  app.use("/api/create", createPublicPost);
+    app.use("/api", getUserPost);
 
-  //get all public post
-  app.use("/api/posts", getPublicPost);
+    app.use("/api", getUserPostById);
 
-  //get user post
-  app.use("/api", getUserPost);
+    app.use("/api/toggle-save", togglePostSaveRouter);
 
-  //get user post by Id
-  app.use("/api", getUserPostById);
+    app.use("/api/toggle-save/check", checkSavedPost);
 
-  // post save toggle button
-  app.use("/api/toggle-save", togglePostSaveRouter);
-
-
-  // post save toggle button
-  app.use("/api/toggle-save/check", checkSavedPost);
-
-  // save post get
-  app.use("/api/saved-posts", savedPostsRouter);
+    app.use("/api/saved-posts", savedPostsRouter);
 };

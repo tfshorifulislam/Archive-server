@@ -1,20 +1,30 @@
-import { getCurrentSession } from "../lib/auth.service.js";
 import { prisma } from "../lib/prisma.js";
 import { uploadToCloudinary } from "../lib/cloudinary_config/uploadToCloudinary.js";
 export const createPost = async (req, res) => {
     try {
-        const session = await getCurrentSession(req);
-        if (!session) {
+        const { title, content, tags, userId } = req.body;
+        if (!userId) {
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized",
             });
         }
-        const { title, content, tags } = req.body;
         if (!content) {
             return res.status(400).json({
                 success: false,
                 message: "Content is required",
+            });
+        }
+        // Check user exists
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
             });
         }
         let parsedTags = [];
@@ -28,20 +38,12 @@ export const createPost = async (req, res) => {
         }
         let mediaUrl = null;
         let mediaType = null;
-        // =========================
-        // CLOUDINARY UPLOAD
-        // =========================
         if (req.file) {
             mediaUrl = await uploadToCloudinary(req.file.buffer);
             mediaType = req.file.mimetype.startsWith("video/")
                 ? "video"
                 : "image";
-            console.log("MEDIA URL:", mediaUrl);
-            console.log("MEDIA TYPE:", mediaType);
         }
-        // =========================
-        // CREATE POST
-        // =========================
         const post = await prisma.post.create({
             data: {
                 title: title || null,
@@ -49,7 +51,7 @@ export const createPost = async (req, res) => {
                 mediaUrl,
                 mediaType,
                 tags: parsedTags,
-                userId: session.user.id,
+                userId,
             },
             include: {
                 user: {

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { toggleSavePost } from "../controller/toggleSavePost.controller.js";
-import { requireAuth } from "../middleware/requireAuth.js";
 const router = Router();
-router.post("/:postId", requireAuth, toggleSavePost);
+router.post("/:postId", toggleSavePost);
 export default router;

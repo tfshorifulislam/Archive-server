@@ -4,6 +4,6 @@ import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = Router();
 
-router.get("/:postId", requireAuth, checkSavedPost);
+router.get("/:postId", checkSavedPost);
 
 export default router;

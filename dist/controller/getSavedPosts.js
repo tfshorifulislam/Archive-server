@@ -1,13 +1,13 @@
 import { prisma } from "../lib/prisma.js";
 export const getSavedPosts = async (req, res) => {
     try {
-        if (!req.user) {
-            return res.status(401).json({
+        const { userId } = req.query;
+        if (!userId || typeof userId !== "string") {
+            return res.status(400).json({
                 success: false,
-                message: "Unauthorized",
+                message: "User ID is required",
             });
         }
-        const userId = req.user.id;
         const savedPosts = await prisma.savedPost.findMany({
             where: {
                 userId,
@@ -29,7 +29,7 @@ export const getSavedPosts = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("Get saved posts error:", error);
+        console.error("GET SAVED POSTS ERROR:", error);
         return res.status(500).json({
             success: false,
             message: "Failed to get saved posts",

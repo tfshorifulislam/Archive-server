@@ -4,6 +4,6 @@ import { getSavedPosts } from "../controller/getSavedPosts.js";
 
 const router = Router();
 
-router.get("/", requireAuth, getSavedPosts);
+router.get("/", getSavedPosts);
 
 export default router;

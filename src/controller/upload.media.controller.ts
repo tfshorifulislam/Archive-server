@@ -1,27 +1,39 @@
 import { Request, Response } from "express";
-import { getCurrentSession } from "../lib/auth.service.js";
 import { prisma } from "../lib/prisma.js";
 import { uploadToCloudinary } from "../lib/cloudinary_config/uploadToCloudinary.js";
 
-
-export const createPost = async (req: Request, res: Response) => {
+export const createPost = async (
+    req: Request,
+    res: Response
+) => {
     try {
-    
-        const session = await getCurrentSession(req);
+        const { title, content, tags, userId } = req.body;
 
-        if (!session) {
+        if (!userId) {
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized",
             });
         }
 
-        const { title, content, tags } = req.body;
-
         if (!content) {
             return res.status(400).json({
                 success: false,
                 message: "Content is required",
+            });
+        }
+
+        // Check user exists
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
             });
         }
 
@@ -38,29 +50,15 @@ export const createPost = async (req: Request, res: Response) => {
         let mediaUrl: string | null = null;
         let mediaType: string | null = null;
 
-        // =========================
-        // CLOUDINARY UPLOAD
-        // =========================
-
         if (req.file) {
-           
             mediaUrl = await uploadToCloudinary(
                 req.file.buffer
             );
 
-            mediaType = req.file.mimetype.startsWith(
-                "video/"
-            )
+            mediaType = req.file.mimetype.startsWith("video/")
                 ? "video"
                 : "image";
-
-            console.log("MEDIA URL:", mediaUrl);
-            console.log("MEDIA TYPE:", mediaType);
         }
-
-        // =========================
-        // CREATE POST
-        // =========================
 
         const post = await prisma.post.create({
             data: {
@@ -69,7 +67,7 @@ export const createPost = async (req: Request, res: Response) => {
                 mediaUrl,
                 mediaType,
                 tags: parsedTags,
-                userId: session.user.id,
+                userId,
             },
 
             include: {
@@ -89,12 +87,8 @@ export const createPost = async (req: Request, res: Response) => {
             message: "Post created successfully",
             post,
         });
-
     } catch (error) {
-        console.error(
-            "CREATE POST ERROR:",
-            error
-        );
+        console.error("CREATE POST ERROR:", error);
 
         return res.status(500).json({
             success: false,

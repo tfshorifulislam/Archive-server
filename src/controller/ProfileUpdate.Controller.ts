@@ -1,22 +1,19 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
-import { getCurrentSession } from "../lib/auth.service.js";
 
 export const updateProfile = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const session = await getCurrentSession(req);
+    const { name, userName, userId } = req.body;
 
-    if (!session) {
+    if (!userId) {
       return res.status(401).json({
         success: false,
         message: "Unauthorized",
       });
     }
-
-    const { name, userName } = req.body;
 
     if (!name || !userName) {
       return res.status(400).json({
@@ -29,7 +26,7 @@ export const updateProfile = async (
       where: {
         userName,
         NOT: {
-          id: session.user.id,
+          id: userId,
         },
       },
     });
@@ -43,7 +40,7 @@ export const updateProfile = async (
 
     const user = await prisma.user.update({
       where: {
-        id: session.user.id,
+        id: userId,
       },
       data: {
         name,
