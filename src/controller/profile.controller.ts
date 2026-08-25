@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getCurrentSession } from "../lib/auth.service";
-import { prisma } from "../lib/prisma";
+import { getCurrentSession } from "../lib/auth.service.js";
+import { prisma } from "../lib/prisma.js";
 
 
 

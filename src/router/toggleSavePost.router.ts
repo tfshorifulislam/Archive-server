@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { toggleSavePost } from "../controller/toggleSavePost.controller.js";
-import { requireAuth } from "../middleware/requireAuth";
+import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = Router();
 

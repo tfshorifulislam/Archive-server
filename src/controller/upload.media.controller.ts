@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getCurrentSession } from "../lib/auth.service";
-import { prisma } from "../lib/prisma";
-import { uploadToCloudinary } from "../lib/cloudinary_config/uploadToCloudinary";
+import { getCurrentSession } from "../lib/auth.service.js";
+import { prisma } from "../lib/prisma.js";
+import { uploadToCloudinary } from "../lib/cloudinary_config/uploadToCloudinary.js";
 
 
 export const createPost = async (req: Request, res: Response) => {

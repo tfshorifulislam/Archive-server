@@ -1,7 +1,7 @@
 // services/auth.service.ts
 
 import { Request } from "express";
-import { auth } from "../lib/auth";
+import { auth } from "../lib/auth.js";
 
 export const getCurrentSession = async (req: Request) => {
   const headers = new Headers();

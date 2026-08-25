@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getCurrentSession } from "../lib/auth.service";
+import { getCurrentSession } from "../lib/auth.service.js";
 
 export const getSession = async (
   req: Request,
