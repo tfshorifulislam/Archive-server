@@ -2,27 +2,32 @@ import { prisma } from "../lib/prisma.js";
 import { uploadToCloudinary } from "../lib/cloudinary_config/uploadToCloudinary.js";
 export const createPost = async (req, res) => {
     try {
-        const { title, content, tags, userId } = req.body;
+        const { title, content, tags, userId, } = req.body;
         if (!userId) {
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized",
             });
         }
-        if (!content) {
+        if (!content || !content.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "Content is required",
             });
         }
-        // Check user exists
         const user = await prisma.user.findUnique({
             where: {
                 id: userId,
             },
+            select: {
+                id: true,
+                name: true,
+                userName: true,
+                image: true,
+            },
         });
         if (!user) {
-            return res.status(401).json({
+            return res.status(404).json({
                 success: false,
                 message: "User not found",
             });
@@ -30,9 +35,16 @@ export const createPost = async (req, res) => {
         let parsedTags = [];
         if (tags) {
             try {
-                parsedTags = JSON.parse(tags);
+                const parsed = JSON.parse(tags);
+                if (Array.isArray(parsed)) {
+                    parsedTags = parsed
+                        .filter((tag) => typeof tag === "string")
+                        .map((tag) => tag.trim())
+                        .filter(Boolean);
+                }
             }
-            catch {
+            catch (error) {
+                console.error("TAGS PARSE ERROR:", error);
                 parsedTags = [];
             }
         }
@@ -40,13 +52,14 @@ export const createPost = async (req, res) => {
         let mediaType = null;
         if (req.file) {
             mediaUrl = await uploadToCloudinary(req.file.buffer);
-            mediaType = req.file.mimetype.startsWith("video/")
-                ? "video"
-                : "image";
+            mediaType =
+                req.file.mimetype.startsWith("video/")
+                    ? "video"
+                    : "image";
         }
         const post = await prisma.post.create({
             data: {
-                title: title || null,
+                title: title?.trim() || null,
                 content,
                 mediaUrl,
                 mediaType,

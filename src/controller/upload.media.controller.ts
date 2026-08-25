@@ -15,9 +15,6 @@ export const createPost = async (
             userId,
         } = req.body;
 
-        // -------------------------
-        // Validate user
-        // -------------------------
 
         if (!userId) {
             return res.status(401).json({
@@ -26,9 +23,6 @@ export const createPost = async (
             });
         }
 
-        // -------------------------
-        // Validate content
-        // -------------------------
 
         if (!content || !content.trim()) {
             return res.status(400).json({
@@ -36,10 +30,6 @@ export const createPost = async (
                 message: "Content is required",
             });
         }
-
-        // -------------------------
-        // Check user exists
-        // -------------------------
 
         const user = await prisma.user.findUnique({
             where: {
@@ -59,10 +49,6 @@ export const createPost = async (
                 message: "User not found",
             });
         }
-
-        // -------------------------
-        // Parse tags
-        // -------------------------
 
         let parsedTags: string[] = [];
 
@@ -89,9 +75,6 @@ export const createPost = async (
             }
         }
 
-        // -------------------------
-        // Media
-        // -------------------------
 
         let mediaUrl: string | null = null;
         let mediaType: string | null = null;
@@ -107,9 +90,7 @@ export const createPost = async (
                     : "image";
         }
 
-        // -------------------------
-        // Create post
-        // -------------------------
+
 
         const post = await prisma.post.create({
             data: {
@@ -133,9 +114,6 @@ export const createPost = async (
             },
         });
 
-        // -------------------------
-        // Response
-        // -------------------------
 
         return res.status(201).json({
             success: true,

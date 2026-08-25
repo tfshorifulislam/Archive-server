@@ -1,16 +1,20 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 
-export const getSavedPosts = async (req: Request, res: Response) => {
+export const getSavedPosts = async (
+    req: Request,
+    res: Response
+) => {
     try {
-        const { userId } = req.query;
-
-        if (!userId || typeof userId !== "string") {
-            return res.status(400).json({
+        if (!req.user) {
+            return res.status(401).json({
                 success: false,
-                message: "User ID is required",
+                message: "Unauthorized",
+                unauthorized: true,
             });
         }
+
+        const userId = req.user.id;
 
         const savedPosts = await prisma.savedPost.findMany({
             where: {
@@ -19,7 +23,14 @@ export const getSavedPosts = async (req: Request, res: Response) => {
             include: {
                 post: {
                     include: {
-                        user: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                userName: true,
+                                image: true,
+                            },
+                        },
                     },
                 },
             },
