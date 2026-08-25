@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { checkSavedPost } from "../controller/checkSavedPost.js";
-import { optionalAuth } from "../middleware/optionalAuth.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = Router();
 
-router.get("/:postId", optionalAuth, checkSavedPost);
+router.get("/:postId", requireAuth, checkSavedPost);
 
 export default router;
