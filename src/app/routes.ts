@@ -15,6 +15,7 @@ import toggleLikePostRouter from "../router/toggleLikePost.router.js";
 import checkLikePostRouter from "../router/checkLikePost.router.js";
 import searchPostRouter from "../router/searchPost.router.js";
 import getPostComment from "../router/getPostComments.router.js"
+import createCommentRouter from "../router/create.comment.router.js";
 
 export const setupRoutes = (app: Express) => {
 
@@ -47,6 +48,8 @@ export const setupRoutes = (app: Express) => {
   app.use("/api/toggle-like/check", checkLikePostRouter);
 
   app.use("/api/get-comment", getPostComment);
+
+  app.use("/api/create-comment", createCommentRouter);
 
 
 };
