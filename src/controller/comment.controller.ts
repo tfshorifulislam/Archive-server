@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 
 
+// ============================================
+// GET NESTED COMMENTS
+// ============================================
+
 export const getPostComments = async (
     req: Request,
     res: Response
@@ -16,14 +20,15 @@ export const getPostComments = async (
             });
         }
 
+
+        // Get all comments of this post
         const comments = await prisma.comment.findMany({
             where: {
                 postId,
-                parentId: null,
             },
 
             orderBy: {
-                createdAt: "desc",
+                createdAt: "asc",
             },
 
             include: {
@@ -35,47 +40,63 @@ export const getPostComments = async (
                         image: true,
                     },
                 },
-
-                replies: {
-                    orderBy: {
-                        createdAt: "asc",
-                    },
-
-                    include: {
-                        user: {
-                            select: {
-                                id: true,
-                                name: true,
-                                userName: true,
-                                image: true,
-                            },
-                        },
-
-                        replies: {
-                            orderBy: {
-                                createdAt: "asc",
-                            },
-
-                            include: {
-                                user: {
-                                    select: {
-                                        id: true,
-                                        name: true,
-                                        userName: true,
-                                        image: true,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
             },
         });
+
+
+        // ========================================
+        // CREATE COMMENT MAP
+        // ========================================
+
+        const commentMap = new Map<string, any>();
+
+
+        comments.forEach((comment) => {
+            commentMap.set(comment.id, {
+                ...comment,
+                replies: [],
+            });
+        });
+
+
+        // ========================================
+        // CREATE NESTED TREE
+        // ========================================
+
+        const nestedComments: any[] = [];
+
+
+        comments.forEach((comment) => {
+            const currentComment = commentMap.get(
+                comment.id
+            );
+
+
+            // Top-level comment
+            if (!comment.parentId) {
+                nestedComments.push(currentComment);
+                return;
+            }
+
+
+            // Reply
+            const parentComment = commentMap.get(
+                comment.parentId
+            );
+
+
+            if (parentComment) {
+                parentComment.replies.push(
+                    currentComment
+                );
+            }
+        });
+
 
         return res.status(200).json({
             success: true,
             message: "Comments fetched successfully",
-            comments,
+            comments: nestedComments,
         });
 
     } catch (error) {
@@ -108,7 +129,11 @@ export const createComment = async (
             parentId,
         } = req.body;
 
-        // Validate required fields
+
+        // ========================================
+        // VALIDATION
+        // ========================================
+
         if (
             !userId ||
             !postId ||
@@ -122,12 +147,16 @@ export const createComment = async (
         }
 
 
-        // Check user
+        // ========================================
+        // CHECK USER
+        // ========================================
+
         const user = await prisma.user.findUnique({
             where: {
                 id: userId,
             },
         });
+
 
         if (!user) {
             return res.status(404).json({
@@ -137,12 +166,16 @@ export const createComment = async (
         }
 
 
-        // Check post
+        // ========================================
+        // CHECK POST
+        // ========================================
+
         const post = await prisma.post.findUnique({
             where: {
                 id: postId,
             },
         });
+
 
         if (!post) {
             return res.status(404).json({
@@ -153,11 +186,10 @@ export const createComment = async (
 
 
         // ========================================
-        // IF THIS IS A REPLY
+        // CHECK PARENT COMMENT
         // ========================================
 
         if (parentId) {
-
             const parentComment =
                 await prisma.comment.findUnique({
                     where: {
@@ -169,13 +201,13 @@ export const createComment = async (
             if (!parentComment) {
                 return res.status(404).json({
                     success: false,
-                    message: "Parent comment not found",
+                    message:
+                        "Parent comment not found",
                 });
             }
 
 
-            // Parent comment must belong
-            // to the same post
+            // Parent must belong to same post
             if (
                 parentComment.postId !== postId
             ) {
@@ -189,20 +221,16 @@ export const createComment = async (
 
 
         // ========================================
-        // CREATE COMMENT
+        // CREATE COMMENT / REPLY
         // ========================================
 
         const comment =
             await prisma.comment.create({
                 data: {
                     content: content.trim(),
-
                     userId,
-
                     postId,
-
-                    parentId:
-                        parentId || null,
+                    parentId: parentId || null,
                 },
 
                 include: {
