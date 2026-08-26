@@ -45,21 +45,22 @@ Backend API for **StoryHub**, a modern social publishing platform where users ca
 
 
 StoryHub-server/
-├── src/
-│   ├── controllers/
-│   ├── routes/
-│   ├── middleware/
-│   ├── services/
-│   ├── lib/
-│   ├── types/
-│   └── server.ts
-│
-├── prisma/
-│   └── schema.prisma
-│
-├── package.json
-├── tsconfig.json
-└── README.md
+
+src/
+  controllers/
+  routes/
+  middleware/
+  services/
+  lib/
+  types/
+  server.ts
+
+prisma/
+  schema.prisma
+
+package.json
+tsconfig.json
+README.md
 
 ****
 git clone https://github.com/tfshorifulislam/StoryHub-server.git
