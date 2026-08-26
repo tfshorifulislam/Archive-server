@@ -73,7 +73,8 @@ export const ModelName = {
     Verification: 'Verification',
     Post: 'Post',
     SavedPost: 'SavedPost',
-    Like: 'Like'
+    Like: 'Like',
+    Comment: 'Comment'
 };
 /**
  * Enums
@@ -150,6 +151,15 @@ export const LikeScalarFieldEnum = {
     userId: 'userId',
     postId: 'postId',
     createdAt: 'createdAt'
+};
+export const CommentScalarFieldEnum = {
+    id: 'id',
+    content: 'content',
+    userId: 'userId',
+    postId: 'postId',
+    parentId: 'parentId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
 };
 export const SortOrder = {
     asc: 'asc',
