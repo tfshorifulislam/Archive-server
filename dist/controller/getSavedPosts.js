@@ -1,14 +1,28 @@
 import { prisma } from "../lib/prisma.js";
 export const getSavedPosts = async (req, res) => {
     try {
-        if (!req.user) {
-            return res.status(401).json({
+        const { userId } = req.query;
+        if (!userId ||
+            typeof userId !== "string") {
+            return res.status(400).json({
                 success: false,
-                message: "Unauthorized",
-                unauthorized: true,
+                message: "User ID is required",
             });
         }
-        const userId = req.user.id;
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                id: true,
+            },
+        });
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
+            });
+        }
         const savedPosts = await prisma.savedPost.findMany({
             where: {
                 userId,

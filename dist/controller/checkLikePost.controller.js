@@ -1,16 +1,23 @@
 import { prisma } from "../lib/prisma.js";
-export const checkSavedPost = async (req, res) => {
+export const checkLikePost = async (req, res) => {
     try {
         const postId = String(req.params.postId);
         const userId = req.query.userId;
+        // User ID না থাকলে
         if (!userId ||
             typeof userId !== "string") {
+            const likeCount = await prisma.like.count({
+                where: {
+                    postId,
+                },
+            });
             return res.status(200).json({
                 success: true,
-                saved: false,
+                liked: false,
+                likeCount,
             });
         }
-        const savedPost = await prisma.savedPost.findUnique({
+        const existingLike = await prisma.like.findUnique({
             where: {
                 userId_postId: {
                     userId,
@@ -18,16 +25,22 @@ export const checkSavedPost = async (req, res) => {
                 },
             },
         });
+        const likeCount = await prisma.like.count({
+            where: {
+                postId,
+            },
+        });
         return res.status(200).json({
             success: true,
-            saved: !!savedPost,
+            liked: !!existingLike,
+            likeCount,
         });
     }
     catch (error) {
-        console.error("CHECK SAVED POST ERROR:", error);
+        console.error("CHECK LIKE POST ERROR:", error);
         return res.status(500).json({
             success: false,
-            message: "Failed to check saved post",
+            message: "Failed to check like",
         });
     }
 };

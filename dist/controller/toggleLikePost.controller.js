@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js";
-export const toggleSavePost = async (req, res) => {
+export const toggleLikePost = async (req, res) => {
     try {
         const { userId } = req.body;
         const postId = String(req.params.postId);
@@ -9,6 +9,7 @@ export const toggleSavePost = async (req, res) => {
                 message: "Unauthorized",
             });
         }
+        // Check user exists
         const user = await prisma.user.findUnique({
             where: {
                 id: userId,
@@ -23,6 +24,7 @@ export const toggleSavePost = async (req, res) => {
                 message: "User not found",
             });
         }
+        // Check post exists
         const post = await prisma.post.findUnique({
             where: {
                 id: postId,
@@ -37,7 +39,8 @@ export const toggleSavePost = async (req, res) => {
                 message: "Post not found",
             });
         }
-        const savedPost = await prisma.savedPost.findUnique({
+        // Check existing like
+        const existingLike = await prisma.like.findUnique({
             where: {
                 userId_postId: {
                     userId,
@@ -45,35 +48,49 @@ export const toggleSavePost = async (req, res) => {
                 },
             },
         });
-        if (savedPost) {
-            await prisma.savedPost.delete({
+        // Already liked → Unlike
+        if (existingLike) {
+            await prisma.like.delete({
                 where: {
-                    id: savedPost.id,
+                    id: existingLike.id,
+                },
+            });
+            const likeCount = await prisma.like.count({
+                where: {
+                    postId,
                 },
             });
             return res.status(200).json({
                 success: true,
-                saved: false,
-                message: "Post removed from saved posts",
+                liked: false,
+                likeCount,
+                message: "Post unliked successfully",
             });
         }
-        await prisma.savedPost.create({
+        // Not liked → Like
+        await prisma.like.create({
             data: {
                 userId,
                 postId,
             },
         });
+        const likeCount = await prisma.like.count({
+            where: {
+                postId,
+            },
+        });
         return res.status(200).json({
             success: true,
-            saved: true,
-            message: "Post saved successfully",
+            liked: true,
+            likeCount,
+            message: "Post liked successfully",
         });
     }
     catch (error) {
-        console.error("TOGGLE SAVE POST ERROR:", error);
+        console.error("TOGGLE LIKE POST ERROR:", error);
         return res.status(500).json({
             success: false,
-            message: "Failed to toggle saved post",
+            message: "Failed to toggle like",
         });
     }
 };

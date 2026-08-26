@@ -9,7 +9,11 @@ import getUserPostById from "../router/get.Posts_By_Id.js";
 import togglePostSaveRouter from "../router/toggleSavePost.router.js";
 import checkSavedPost from "../router/CheckSavePost.js";
 import savedPostsRouter from "../router/getSavedPosts.js";
+import toggleLikePostRouter from "../router/toggleLikePost.router.js";
+import checkLikePostRouter from "../router/checkLikePost.router.js";
+import searchPostRouter from "../router/searchPost.router.js";
 export const setupRoutes = (app) => {
+    app.use("/api/posts/search", searchPostRouter);
     app.use("/", backendHelthCheck);
     app.use("/api/user", userNameCheckRouter);
     app.use("/api/profile", profileRouter);
@@ -21,4 +25,6 @@ export const setupRoutes = (app) => {
     app.use("/api/toggle-save", togglePostSaveRouter);
     app.use("/api/toggle-save/check", checkSavedPost);
     app.use("/api/saved-posts", savedPostsRouter);
+    app.use("/api/toggle-like", toggleLikePostRouter);
+    app.use("/api/toggle-like/check", checkLikePostRouter);
 };
