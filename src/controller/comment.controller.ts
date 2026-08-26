@@ -20,8 +20,6 @@ export const getPostComments = async (
             });
         }
 
-
-        // Get all comments of this post
         const comments = await prisma.comment.findMany({
             where: {
                 postId,
@@ -43,13 +41,7 @@ export const getPostComments = async (
             },
         });
 
-
-        // ========================================
-        // CREATE COMMENT MAP
-        // ========================================
-
         const commentMap = new Map<string, any>();
-
 
         comments.forEach((comment) => {
             commentMap.set(comment.id, {
@@ -58,19 +50,11 @@ export const getPostComments = async (
             });
         });
 
-
-        // ========================================
-        // CREATE NESTED TREE
-        // ========================================
-
         const nestedComments: any[] = [];
 
-
         comments.forEach((comment) => {
-            const currentComment = commentMap.get(
-                comment.id
-            );
-
+            const currentComment =
+                commentMap.get(comment.id);
 
             // Top-level comment
             if (!comment.parentId) {
@@ -78,12 +62,9 @@ export const getPostComments = async (
                 return;
             }
 
-
             // Reply
-            const parentComment = commentMap.get(
-                comment.parentId
-            );
-
+            const parentComment =
+                commentMap.get(comment.parentId);
 
             if (parentComment) {
                 parentComment.replies.push(
@@ -91,7 +72,6 @@ export const getPostComments = async (
                 );
             }
         });
-
 
         return res.status(200).json({
             success: true,
@@ -111,7 +91,6 @@ export const getPostComments = async (
         });
     }
 };
-
 
 // ============================================
 // CREATE COMMENT / REPLY
