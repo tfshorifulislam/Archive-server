@@ -10,7 +10,7 @@
     "dev": "tsx watch src/server/server.ts",
     "build": "prisma generate && tsc",
     "start": "node dist/server/server.js",
-     "postinstall": "prisma generate"
+    "postinstall": "prisma generate"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

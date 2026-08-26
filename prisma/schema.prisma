@@ -21,6 +21,7 @@ model User {
   posts         Post[]
   SavedPosts    SavedPost[]
   likes         Like[]
+  comments      Comment[]
 
   @@map("user")
 }
@@ -73,16 +74,17 @@ model Verification {
 }
 
 model Post {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   title     String?
   content   String
   mediaUrl  String?
   mediaType String?
-  tags      String[] @default([])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tags      String[]  @default([])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   userId    String
   likes     Like[]
+  comments  Comment[]
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   savedPosts SavedPost[]
@@ -114,4 +116,24 @@ model Like {
 
   @@unique([userId, postId])
   @@index([postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  postId    String
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([parentId])
+  @@index([userId])
+  @@map("comment")
 }
