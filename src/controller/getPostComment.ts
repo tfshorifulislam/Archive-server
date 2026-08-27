@@ -1,14 +1,29 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 
+type CommentWithReplies = {
+    id: string;
+    content: string;
+    userId: string;
+    postId: string;
+    parentId: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    user: {
+        id: string;
+        name: string | null;
+        userName: string;
+        image: string | null;
+    };
+    replies: CommentWithReplies[];
+};
 
-
-export const getPostComments = async (
-    req: Request,
-    res: Response
-) => {
+export const getPostComments = async (req: Request, res: Response) => {
     try {
         const postId = req.params.postId as string;
+        const page = Math.max(Number(req.query.page) || 1, 1);
+        const limit = 20;
+        const skip = (page - 1) * limit;
 
         if (!postId) {
             return res.status(400).json({
@@ -18,14 +33,10 @@ export const getPostComments = async (
         }
 
         const comments = await prisma.comment.findMany({
-            where: {
-                postId,
-            },
-
-            orderBy: {
-                createdAt: "asc",
-            },
-
+            where: { postId },
+            orderBy: { createdAt: "asc" },
+            skip,
+            take: limit,
             include: {
                 user: {
                     select: {
@@ -38,7 +49,7 @@ export const getPostComments = async (
             },
         });
 
-        const commentMap = new Map<string, any>();
+        const commentMap = new Map<string, CommentWithReplies>();
 
         comments.forEach((comment) => {
             commentMap.set(comment.id, {
@@ -47,40 +58,34 @@ export const getPostComments = async (
             });
         });
 
-        const nestedComments: any[] = [];
+        const nestedComments: CommentWithReplies[] = [];
 
         comments.forEach((comment) => {
-            const currentComment =
-                commentMap.get(comment.id);
+            const current = commentMap.get(comment.id);
 
-            // Top-level comment
+            if (!current) return;
+
             if (!comment.parentId) {
-                nestedComments.push(currentComment);
+                nestedComments.push(current);
                 return;
             }
 
-            // Reply
-            const parentComment =
-                commentMap.get(comment.parentId);
+            const parent = commentMap.get(comment.parentId);
 
-            if (parentComment) {
-                parentComment.replies.push(
-                    currentComment
-                );
+            if (parent) {
+                parent.replies.push(current);
             }
         });
 
         return res.status(200).json({
             success: true,
-            message: "Comments fetched successfully",
             comments: nestedComments,
+            page,
+            limit,
+            hasMore: comments.length === limit,
         });
-
     } catch (error) {
-        console.error(
-            "GET POST COMMENTS ERROR:",
-            error
-        );
+        console.error("GET POST COMMENTS ERROR:", error);
 
         return res.status(500).json({
             success: false,
