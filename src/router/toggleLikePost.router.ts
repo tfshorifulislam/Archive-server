@@ -1,8 +1,6 @@
 import { Router } from "express";
 
-import {
-    toggleLikePost,
-} from "../controller/toggleLikePost.controller.js";
+import {toggleLikePost,} from "../controller/toggleLikePost.controller.js";
 
 const router = Router();
 
