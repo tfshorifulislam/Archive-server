@@ -1,21 +1,9 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 
-export const createComment = async (
-    req: Request,
-    res: Response
-) => {
+export const createComment = async (req: Request, res: Response) => {
     try {
-        const {
-            userId,
-            postId,
-            content,
-            parentId,
-        } = req.body;
-
-        // ========================================
-        // VALIDATION
-        // ========================================
+        const { userId, postId, content, parentId } = req.body;
 
         if (!userId || !postId || !content?.trim()) {
             return res.status(400).json({
@@ -24,27 +12,14 @@ export const createComment = async (
             });
         }
 
-        // ========================================
-        // CHECK USER + POST IN PARALLEL
-        // ========================================
-
         const [user, post] = await Promise.all([
             prisma.user.findUnique({
-                where: {
-                    id: userId,
-                },
-                select: {
-                    id: true,
-                },
+                where: { id: userId },
+                select: { id: true },
             }),
-
             prisma.post.findUnique({
-                where: {
-                    id: postId,
-                },
-                select: {
-                    id: true,
-                },
+                where: { id: postId },
+                select: { id: true },
             }),
         ]);
 
@@ -62,33 +37,22 @@ export const createComment = async (
             });
         }
 
-        // ========================================
-        // CHECK PARENT COMMENT
-        // ========================================
-
         if (parentId) {
-            const parentComment =
-                await prisma.comment.findFirst({
-                    where: {
-                        id: parentId,
-                        postId,
-                    },
-                    select: {
-                        id: true,
-                    },
-                });
+            const parent = await prisma.comment.findFirst({
+                where: {
+                    id: parentId,
+                    postId,
+                },
+                select: { id: true },
+            });
 
-            if (!parentComment) {
+            if (!parent) {
                 return res.status(404).json({
                     success: false,
                     message: "Parent comment not found",
                 });
             }
         }
-
-        // ========================================
-        // CREATE COMMENT / REPLY
-        // ========================================
 
         const comment = await prisma.comment.create({
             data: {
@@ -97,7 +61,6 @@ export const createComment = async (
                 postId,
                 parentId: parentId || null,
             },
-
             include: {
                 user: {
                     select: {
@@ -110,10 +73,6 @@ export const createComment = async (
             },
         });
 
-        // ========================================
-        // RESPONSE
-        // ========================================
-
         return res.status(201).json({
             success: true,
             message: parentId
@@ -121,7 +80,6 @@ export const createComment = async (
                 : "Comment created successfully",
             comment,
         });
-
     } catch (error) {
         console.error("CREATE COMMENT ERROR:", error);
 
