@@ -76,7 +76,7 @@ export const toggleLikePost = async (
 
         return res.status(500).json({
             success: false,
-            message: "Failed to toggle like",
+            message: "Failed to toggle like"
         });
     }
 };
