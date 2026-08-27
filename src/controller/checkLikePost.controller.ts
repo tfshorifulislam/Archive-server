@@ -1,28 +1,15 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 
-export const checkLikePost = async (
-    req: Request,
-    res: Response
-) => {
+export const checkLikePost = async (req: Request, res: Response) => {
     try {
-        const postId = String(
-            req.params.postId
-        );
-
+        const postId = String(req.params.postId);
         const userId = req.query.userId;
 
-        // User ID না থাকলে
-        if (
-            !userId ||
-            typeof userId !== "string"
-        ) {
-            const likeCount =
-                await prisma.like.count({
-                    where: {
-                        postId,
-                    },
-                });
+        if (!userId || typeof userId !== "string") {
+            const likeCount = await prisma.like.count({
+                where: { postId },
+            });
 
             return res.status(200).json({
                 success: true,
@@ -31,22 +18,21 @@ export const checkLikePost = async (
             });
         }
 
-        const existingLike =
-            await prisma.like.findUnique({
+        const [existingLike, likeCount] = await Promise.all([
+            prisma.like.findUnique({
                 where: {
                     userId_postId: {
                         userId,
                         postId,
                     },
                 },
-            });
+                select: { id: true },
+            }),
 
-        const likeCount =
-            await prisma.like.count({
-                where: {
-                    postId,
-                },
-            });
+            prisma.like.count({
+                where: { postId },
+            }),
+        ]);
 
         return res.status(200).json({
             success: true,
@@ -54,10 +40,7 @@ export const checkLikePost = async (
             likeCount,
         });
     } catch (error) {
-        console.error(
-            "CHECK LIKE POST ERROR:",
-            error
-        );
+        console.error("CHECK LIKE POST ERROR:", error);
 
         return res.status(500).json({
             success: false,
